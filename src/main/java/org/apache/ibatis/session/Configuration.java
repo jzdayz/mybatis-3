@@ -99,7 +99,7 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
  * @author Clinton Begin
  */
 public class Configuration {
-
+  // 环境
   protected Environment environment;
 
   protected boolean safeRowBoundsEnabled;
