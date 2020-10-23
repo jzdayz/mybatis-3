@@ -26,7 +26,7 @@ import org.apache.ibatis.transaction.TransactionFactory;
 
 /**
  * Creates {@link ManagedTransaction} instances.
- *
+ * 托管性事务管理工厂
  * @author Clinton Begin
  *
  * @see ManagedTransaction
