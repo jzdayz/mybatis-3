@@ -51,6 +51,8 @@ import org.apache.ibatis.session.Configuration;
 /**
  * @author Clinton Begin
  * @author Kazuki Shimizu
+ *
+ *  用于处理结果对象属性的处理器
  */
 public final class TypeHandlerRegistry {
 

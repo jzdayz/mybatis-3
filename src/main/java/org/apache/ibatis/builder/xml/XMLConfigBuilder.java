@@ -48,6 +48,8 @@ import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.type.JdbcType;
 
 /**
+ *
+ *  xml文件配置mybatis的一些设置，一般不同，直接使用java声明的方式
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */

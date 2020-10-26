@@ -45,6 +45,9 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
     return create(type, null, null);
   }
 
+  /**
+   *  简单的创建对象的工厂，对type类型会有一些推断
+   */
   @SuppressWarnings("unchecked")
   @Override
   public <T> T create(Class<T> type, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {

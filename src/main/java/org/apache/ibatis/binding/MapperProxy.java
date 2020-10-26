@@ -100,6 +100,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
       }
 
       return methodCache.computeIfAbsent(method, m -> {
+        // 默认方法 TODO  后面来看
         if (m.isDefault()) {
           try {
             if (privateLookupInMethod == null) {
@@ -112,6 +113,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
             throw new RuntimeException(e);
           }
         } else {
+          // 普通方法调用
           return new PlainMethodInvoker(new MapperMethod(mapperInterface, method, sqlSession.getConfiguration()));
         }
       });

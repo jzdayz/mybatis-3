@@ -128,10 +128,13 @@ public class Configuration {
   protected ExecutorType defaultExecutorType = ExecutorType.SIMPLE;
   protected AutoMappingBehavior autoMappingBehavior = AutoMappingBehavior.PARTIAL;
   protected AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior = AutoMappingUnknownColumnBehavior.NONE;
-
+  // 对xml的属性进行默认赋值
   protected Properties variables = new Properties();
+  // 反射操作对象属性的工厂
   protected ReflectorFactory reflectorFactory = new DefaultReflectorFactory();
+  // 创建对象的工厂
   protected ObjectFactory objectFactory = new DefaultObjectFactory();
+  // 对象的包装类工厂
   protected ObjectWrapperFactory objectWrapperFactory = new DefaultObjectWrapperFactory();
 
   protected boolean lazyLoadingEnabled = false;
@@ -145,21 +148,29 @@ public class Configuration {
    * @see <a href='https://github.com/mybatis/old-google-code-issues/issues/300'>Issue 300 (google code)</a>
    */
   protected Class<?> configurationFactory;
-
+  // 管理mybatis接口
   protected final MapperRegistry mapperRegistry = new MapperRegistry(this);
+  // 拦截链
   protected final InterceptorChain interceptorChain = new InterceptorChain();
+  // 类型处理器
   protected final TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry(this);
+  // 类型别名
   protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
+  //
   protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
-
+  // MappedStatement 容器
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection")
       .conflictMessageProducer((savedValue, targetValue) ->
           ". please check " + savedValue.getResource() + " and " + targetValue.getResource());
+  // 缓存
   protected final Map<String, Cache> caches = new StrictMap<>("Caches collection");
+  // resultMap 容器
   protected final Map<String, ResultMap> resultMaps = new StrictMap<>("Result Maps collection");
+  // ParameterMap 容器
   protected final Map<String, ParameterMap> parameterMaps = new StrictMap<>("Parameter Maps collection");
-  protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<>("Key Generators collection");
 
+  protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<>("Key Generators collection");
+  // 记录xml或者mapper是否解析过
   protected final Set<String> loadedResources = new HashSet<>();
   protected final Map<String, XNode> sqlFragments = new StrictMap<>("XML fragments parsed from previous mappers");
 
@@ -967,10 +978,18 @@ public class Configuration {
     }
   }
 
+  /**
+   *  魔改过的hashmap
+   *  1. key会发生变化  io.github -> github
+   *  2. key如果存在，则put操作直接异常
+   *  3. get操作不可以为空，直接异常
+   * @param <V>
+   */
   protected static class StrictMap<V> extends HashMap<String, V> {
 
     private static final long serialVersionUID = -4950446264854982944L;
     private final String name;
+    // 同样的key被put进容器，则调用这个返回错误信息
     private BiFunction<V, V, String> conflictMessageProducer;
 
     public StrictMap(String name, int initialCapacity, float loadFactor) {
@@ -1014,6 +1033,7 @@ public class Configuration {
             + (conflictMessageProducer == null ? "" : conflictMessageProducer.apply(super.get(key), value)));
       }
       if (key.contains(".")) {
+        // key如果含有'.'则只取最后一段   io.github -> github
         final String shortKey = getShortName(key);
         if (super.get(shortKey) == null) {
           super.put(shortKey, value);

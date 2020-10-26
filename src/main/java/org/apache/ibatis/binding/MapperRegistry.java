@@ -40,6 +40,9 @@ public class MapperRegistry {
     this.config = config;
   }
 
+  /**
+   *  根据接口获取工厂类，并且根据sqlSession获取接口的实体类
+   */
   @SuppressWarnings("unchecked")
   public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
     final MapperProxyFactory<T> mapperProxyFactory = (MapperProxyFactory<T>) knownMappers.get(type);
@@ -57,7 +60,11 @@ public class MapperRegistry {
     return knownMappers.containsKey(type);
   }
 
+  /**
+   *  相当于是一个接口注册成一个 工厂
+   */
   public <T> void addMapper(Class<T> type) {
+    // 只可以注册接口
     if (type.isInterface()) {
       if (hasMapper(type)) {
         throw new BindingException("Type " + type + " is already known to the MapperRegistry.");
@@ -69,6 +76,7 @@ public class MapperRegistry {
         // otherwise the binding may automatically be attempted by the
         // mapper parser. If the type is already known, it won't try.
         MapperAnnotationBuilder parser = new MapperAnnotationBuilder(config, type);
+        // 解析接口
         parser.parse();
         loadCompleted = true;
       } finally {
