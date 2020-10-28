@@ -49,6 +49,8 @@ public class ParamNameResolver {
    * <li>aMethod(int a, int b) -&gt; {{0, "0"}, {1, "1"}}</li>
    * <li>aMethod(int a, RowBounds rb, int b) -&gt; {{0, "0"}, {2, "1"}}</li>
    * </ul>
+   *
+   *  index,方法参数名称
    */
   private final SortedMap<Integer, String> names;
 
@@ -74,17 +76,21 @@ public class ParamNameResolver {
           break;
         }
       }
+      // 如果参数没有param注解
       if (name == null) {
         // @Param was not specified.
         if (useActualParamName) {
+          // 使用实际的名称，这个实际上没啥卵用，jdk必须加入-param编译，不然就是arg0 arg1这种名称
           name = getActualParamName(method, paramIndex);
         }
         if (name == null) {
           // use the parameter index as the name ("0", "1", ...)
           // gcode issue #71
+          // 这里就变成 0 1
           name = String.valueOf(map.size());
         }
       }
+      // 放入index和name
       map.put(paramIndex, name);
     }
     names = Collections.unmodifiableSortedMap(map);
@@ -124,17 +130,22 @@ public class ParamNameResolver {
     if (args == null || paramCount == 0) {
       return null;
     } else if (!hasParamAnnotation && paramCount == 1) {
+      // 只有一个参数，则将参数取出来
       Object value = args[names.firstKey()];
       return wrapToMapIfCollection(value, useActualParamName ? names.get(0) : null);
     } else {
+      // 参数名称,参数值
       final Map<String, Object> param = new ParamMap<>();
       int i = 0;
+      // argIndex,argName => argName,argValue
       for (Map.Entry<Integer, String> entry : names.entrySet()) {
+        // 参数名称 , 参数值
         param.put(entry.getValue(), args[entry.getKey()]);
         // add generic param names (param1, param2, ...)
         final String genericParamName = GENERIC_NAME_PREFIX + (i + 1);
         // ensure not to overwrite parameter named with @Param
         if (!names.containsValue(genericParamName)) {
+          // 这里扔进去 param1,参数值    平时基本不用到
           param.put(genericParamName, args[entry.getKey()]);
         }
         i++;
@@ -153,6 +164,8 @@ public class ParamNameResolver {
    * @since 3.5.5
    */
   public static Object wrapToMapIfCollection(Object object, String actualParamName) {
+    // 对单个参数进行解析，包装返回值，给默认的name
+    // 如果actualParamName参数有值的话，则返回的mapKey为actualParamName
     if (object instanceof Collection) {
       ParamMap<Object> map = new ParamMap<>();
       map.put("collection", object);

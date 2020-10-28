@@ -51,6 +51,7 @@ public class DefaultSqlSession implements SqlSession {
   private final Executor executor;
 
   private final boolean autoCommit;
+  // 记录是否有脏数据
   private boolean dirty;
   private List<Cursor<?>> cursorList;
 
@@ -193,6 +194,7 @@ public class DefaultSqlSession implements SqlSession {
   public int update(String statement, Object parameter) {
     try {
       dirty = true;
+      // 获取mapper的一些东西，在xml文件或者注解规定的设置
       MappedStatement ms = configuration.getMappedStatement(statement);
       return executor.update(ms, wrapCollection(parameter));
     } catch (Exception e) {
@@ -312,10 +314,19 @@ public class DefaultSqlSession implements SqlSession {
     cursorList.add(cursor);
   }
 
+  /**
+   *  是否应该提交或者回滚
+   *  如果参数给定强制，则提交回滚
+   *  如果不是自动提交并且含有脏数据，则提交回滚
+   */
   private boolean isCommitOrRollbackRequired(boolean force) {
     return (!autoCommit && dirty) || force;
   }
 
+  /**
+   * 如果是数组或者集合将参数进行含有name的包装，变成map
+   * 例如 list(1,2,3) => map('list',list(1,2,3))
+   */
   private Object wrapCollection(final Object object) {
     return ParamNameResolver.wrapToMapIfCollection(object, null);
   }

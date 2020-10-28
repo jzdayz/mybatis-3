@@ -111,8 +111,10 @@ public abstract class BaseExecutor implements Executor {
   public int update(MappedStatement ms, Object parameter) throws SQLException {
     ErrorContext.instance().resource(ms.getResource()).activity("executing an update").object(ms.getId());
     if (closed) {
+      // 连接已经关闭
       throw new ExecutorException("Executor was closed.");
     }
+    // 修改语句，清空缓存
     clearLocalCache();
     return doUpdate(ms, parameter);
   }
