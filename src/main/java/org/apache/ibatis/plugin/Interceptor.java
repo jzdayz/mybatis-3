@@ -19,11 +19,17 @@ import java.util.Properties;
 
 /**
  * @author Clinton Begin
+ *
+ *  总的来说使用拦截功能还是蛮麻烦的，需要加@Intercepts 注解
+ *  并且需要 @Signature 注解来描述拦截的方法
  */
 public interface Interceptor {
 
   Object intercept(Invocation invocation) throws Throwable;
 
+  /**
+   *  根据对象，返回一个代理对象
+   */
   default Object plugin(Object target) {
     return Plugin.wrap(target, this);
   }

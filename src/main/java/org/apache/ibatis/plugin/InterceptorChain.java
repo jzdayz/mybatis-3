@@ -24,12 +24,18 @@ import java.util.List;
  */
 public class InterceptorChain {
 
+  // 顺序执行的拦截器
   private final List<Interceptor> interceptors = new ArrayList<>();
 
+  /**
+   * 拦截
+   */
   public Object pluginAll(Object target) {
     for (Interceptor interceptor : interceptors) {
+      // 返回一个包装代理对象
       target = interceptor.plugin(target);
     }
+    // 从这里我们可以看出，如果多个拦截器都启动，则返回的对象是一层一层的jdkProxy对象
     return target;
   }
 

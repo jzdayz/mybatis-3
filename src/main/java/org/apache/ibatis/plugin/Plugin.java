@@ -41,15 +41,19 @@ public class Plugin implements InvocationHandler {
   }
 
   public static Object wrap(Object target, Interceptor interceptor) {
+    // 获取拦截器需要拦截的类与方法
     Map<Class<?>, Set<Method>> signatureMap = getSignatureMap(interceptor);
     Class<?> type = target.getClass();
+    // 对应拦截器拦截的类对应的接口
     Class<?>[] interfaces = getAllInterfaces(type, signatureMap);
     if (interfaces.length > 0) {
+      // 如果有接口符合拦截器的签名，则建立一个代理对象
       return Proxy.newProxyInstance(
           type.getClassLoader(),
           interfaces,
           new Plugin(target, interceptor, signatureMap));
     }
+    // 没有接口需要拦截，则返回原生对象
     return target;
   }
 
@@ -66,6 +70,10 @@ public class Plugin implements InvocationHandler {
     }
   }
 
+  /**
+   *  这里的话，说明拦截器必须要加  Intercepts注解
+   *  并且需要 @Signature 注解，标识需要代理的方法
+   */
   private static Map<Class<?>, Set<Method>> getSignatureMap(Interceptor interceptor) {
     Intercepts interceptsAnnotation = interceptor.getClass().getAnnotation(Intercepts.class);
     // issue #251
@@ -86,6 +94,9 @@ public class Plugin implements InvocationHandler {
     return signatureMap;
   }
 
+  /**
+   *  这里筛选出代理类对应的接口有哪些
+   */
   private static Class<?>[] getAllInterfaces(Class<?> type, Map<Class<?>, Set<Method>> signatureMap) {
     Set<Class<?>> interfaces = new HashSet<>();
     while (type != null) {
