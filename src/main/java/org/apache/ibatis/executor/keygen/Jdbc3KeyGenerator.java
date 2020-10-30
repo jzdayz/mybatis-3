@@ -72,6 +72,7 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
   }
 
   public void processBatch(MappedStatement ms, Statement stmt, Object parameter) {
+    // 获取该mapper接口对应的keys
     final String[] keyProperties = ms.getKeyProperties();
     if (keyProperties == null || keyProperties.length == 0) {
       return;
@@ -79,9 +80,11 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
     try (ResultSet rs = stmt.getGeneratedKeys()) {
       final ResultSetMetaData rsmd = rs.getMetaData();
       final Configuration configuration = ms.getConfiguration();
+      // JDBC返回的生成键和定义的键属性数量不一致
       if (rsmd.getColumnCount() < keyProperties.length) {
         // Error?
       } else {
+        // 分配key到参数
         assignKeys(configuration, rs, rsmd, keyProperties, parameter);
       }
     } catch (Exception e) {
@@ -100,6 +103,7 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
       // Multi-param or single param with @Param in batch operation
       assignKeysToParamMapList(configuration, rs, rsmd, keyProperties, (ArrayList<ParamMap<?>>) parameter);
     } else {
+      // 分配到单个参数
       // Single param without @Param
       assignKeysToParam(configuration, rs, rsmd, keyProperties, parameter);
     }
@@ -113,6 +117,7 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
     }
     List<KeyAssigner> assignerList = new ArrayList<>();
     for (int i = 0; i < keyProperties.length; i++) {
+      // key分配器
       assignerList.add(new KeyAssigner(configuration, rsmd, i + 1, null, keyProperties[i]));
     }
     Iterator<?> iterator = params.iterator();
@@ -257,10 +262,15 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
         // If paramName is set, param is ParamMap
         param = ((ParamMap<?>) param).get(paramName);
       }
+      // 对象操作
       MetaObject metaParam = configuration.newMetaObject(param);
       try {
         if (typeHandler == null) {
+          // 对于bean 对象是否含有该属性
+          // 对于map 直接通过，因为直接put进去即可
+          // 对于集合 抛出异常
           if (metaParam.hasSetter(propertyName)) {
+            // 获取需要设置的字段的属性
             Class<?> propertyType = metaParam.getSetterType(propertyName);
             typeHandler = typeHandlerRegistry.getTypeHandler(propertyType,
                 JdbcType.forCode(rsmd.getColumnType(columnPosition)));
@@ -269,10 +279,13 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
                 + metaParam.getOriginalObject().getClass().getName() + "'.");
           }
         }
+        // 感觉这里最好是抛出异常，不然排查起来还挺麻烦
         if (typeHandler == null) {
           // Error?
         } else {
+          // 获取具体的值
           Object value = typeHandler.getResult(rs, columnPosition);
+          // 设置值
           metaParam.setValue(propertyName, value);
         }
       } catch (SQLException e) {

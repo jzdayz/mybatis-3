@@ -82,6 +82,8 @@ public class MapWrapper extends BaseWrapper {
         return metaValue.getSetterType(prop.getChildren());
       }
     } else {
+      // 这里好奇怪，根据name获取map的value返回该数据的类型
+      // 然后set值的时候，就直接根据name进行set进去
       if (map.get(name) != null) {
         return map.get(name).getClass();
       } else {
