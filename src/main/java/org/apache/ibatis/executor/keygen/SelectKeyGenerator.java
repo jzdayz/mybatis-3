@@ -29,6 +29,8 @@ import org.apache.ibatis.session.RowBounds;
 /**
  * @author Clinton Begin
  * @author Jeff Butler
+ *
+ *  使用自定义的SQL
  */
 public class SelectKeyGenerator implements KeyGenerator {
 

@@ -77,6 +77,7 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
     if (keyProperties == null || keyProperties.length == 0) {
       return;
     }
+    // 获取jdbc驱动返回生成的key
     try (ResultSet rs = stmt.getGeneratedKeys()) {
       final ResultSetMetaData rsmd = rs.getMetaData();
       final Configuration configuration = ms.getConfiguration();
@@ -111,21 +112,27 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
 
   private void assignKeysToParam(Configuration configuration, ResultSet rs, ResultSetMetaData rsmd,
       String[] keyProperties, Object parameter) throws SQLException {
+    // 如果是saveBatch，这里就是list
     Collection<?> params = collectionize(parameter);
     if (params.isEmpty()) {
       return;
     }
     List<KeyAssigner> assignerList = new ArrayList<>();
+    // 每一个key，对应一个分配器
     for (int i = 0; i < keyProperties.length; i++) {
       // key分配器
       assignerList.add(new KeyAssigner(configuration, rsmd, i + 1, null, keyProperties[i]));
     }
     Iterator<?> iterator = params.iterator();
+    // 操作jdbc返回生成的key
     while (rs.next()) {
+      // 如果返回的key数量和参数不一致
       if (!iterator.hasNext()) {
         throw new ExecutorException(String.format(MSG_TOO_MANY_KEYS, params.size()));
       }
+      // 遍历一个个参数
       Object param = iterator.next();
+      // 每个分配器都对 一个Row进行操作
       assignerList.forEach(x -> x.assign(rs, param));
     }
   }
