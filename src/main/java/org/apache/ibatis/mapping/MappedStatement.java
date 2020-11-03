@@ -301,6 +301,9 @@ public final class MappedStatement {
     return resultSets;
   }
 
+  /**
+   *  这个类很重要，根据参数获取卸载了动态标签的sql，也就是原始的sql
+   */
   public BoundSql getBoundSql(Object parameterObject) {
     BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
     List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();

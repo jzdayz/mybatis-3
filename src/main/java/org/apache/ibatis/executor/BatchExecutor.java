@@ -41,10 +41,13 @@ import org.apache.ibatis.transaction.Transaction;
 public class BatchExecutor extends BaseExecutor {
 
   public static final int BATCH_UPDATE_RETURN_VALUE = Integer.MIN_VALUE + 1002;
-
+  // 记录statement，如果批量执行的sql不一致，则会有多个statement
   private final List<Statement> statementList = new ArrayList<>();
+  // 记录sql和参数
   private final List<BatchResult> batchResultList = new ArrayList<>();
+  // 当前的sql，用来比对
   private String currentSql;
+  // 当前的statement
   private MappedStatement currentStatement;
 
   public BatchExecutor(Configuration configuration, Transaction transaction) {
@@ -58,6 +61,7 @@ public class BatchExecutor extends BaseExecutor {
     final BoundSql boundSql = handler.getBoundSql();
     final String sql = boundSql.getSql();
     final Statement stmt;
+    // sql一致，statement一致
     if (sql.equals(currentSql) && ms.equals(currentStatement)) {
       int last = statementList.size() - 1;
       stmt = statementList.get(last);
