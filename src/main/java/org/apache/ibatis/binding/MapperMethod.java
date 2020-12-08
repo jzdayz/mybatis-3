@@ -88,6 +88,7 @@ public class MapperMethod {
         } else {
           Object param = method.convertArgsToSqlCommandParam(args);
           result = sqlSession.selectOne(command.getName(), param);
+          // 返回optional   返回值为optional 并且 (结果为空 或者 实际查询的值类型不同于方法返回类型)
           if (method.returnsOptional()
               && (result == null || !method.getReturnType().equals(result.getClass()))) {
             result = Optional.ofNullable(result);
